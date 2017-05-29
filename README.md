@@ -6,21 +6,53 @@ This dockerfile build to support module installation via pip and fork to run oth
 
 1. Run the following command.
 ```bash
-$ docker build -t  .
+$ docker build -t local/python  .
 ```
 
-## Run
+## Run without Variable
+In example, you can run start with simple docker by using this commond
+```
+$ docker run -d --name python local/python
+```
 
-**Assumption**  
-kibana running on host: kibana and listen port is 5601.
-elasticsearch running on host: elasticsearch and listen port is 9200.
-If you want to proxy from nginx to kibana, you run the following command.
+## Output: log
+This docker mount python-file in example to /usr/src/python by default.
+The main.py try to install python module via pip and run p1.py, p2.py and scheduler.py
+```
+$ docker logs -f python
+Installing PIP_MODULE:
+You must give at least one requirement to install (see "pip help install")
+PYTHON APP:True FILE:p1.py
+parent: 1, child: 14
 
+PYTHON APP:True FILE:p2.py
+A new child: 14 run python file: /usr/src/python/p1.py
+parent: 1, child: 15
+
+PYTHON APP:True FILE:scheduler.py
+A new child: 15 run python file: /usr/src/python/p2.py
+parent: 1, child: 17
+
+A new child: 17 run python file: /usr/src/python/scheduler.py
+I'm p2.py
+Traceback (most recent call last):
+  File "/usr/src/python/scheduler.py", line 1, in <module>
+    import schedule
+ModuleNotFoundError: No module named 'schedule'
+I'm p1.py
+child pid: 14 is terminated
+child pid: 15 is terminated
+child pid: 17 is terminated
+Exit main.py
+
+```
+
+## Run with Variable
+You can specify python module with variable: PIP_MODULE. The PIP_MODULE is installed by command pip. 
+Moreover, you can add sourcecode that you want to run by mapping /path/to/your/python to diractory:/usr/src/python
 ```bash
-$ docker run -d --name python -e "PIP_MODULE=schedule" -v /path/to/your/python:/usr/src/python lokios/python-multithreads
+$ docker run -d --name python -e "PIP_MODULE=schedule" -v /path/to/your/python:/usr/src/python local/python
 ```
-
-and then, you can access to `localhost:5602` or `localhost:9201` on browser.
 
 ## Output: log
 ```bash
