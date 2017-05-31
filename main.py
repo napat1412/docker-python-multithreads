@@ -30,6 +30,7 @@ for file in files:
       print("parent: %d, child: %d\n" % pids)
       childPID_list.append(newpid)
 
+##### wait for child process #####
 for childPID in childPID_list:
   os.waitpid(childPID,0)
   print("child pid: {0} is terminated".format(childPID))
